@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,6 +107,8 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み注文',
+    noSubmittedOrders: '送信済みの補充注文はまだありません',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -125,7 +128,9 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム',
+      totalCost: '総コスト'
     }
   },
 
@@ -188,6 +193,38 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '需要予測と利用可能な予算に基づいて補充を計画',
+    budgetTitle: '補充予算',
+    budgetLabel: '利用可能予算',
+    allocated: '割当済み',
+    remaining: '残額',
+    itemsSelected: '{total}件中{selected}件が予算内',
+    recommendationsTitle: '推奨補充品目',
+    placeOrder: '注文する',
+    placingOrder: '注文中...',
+    orderSuccess: '補充注文 {orderNumber} を送信しました',
+    viewOrders: '注文ページで確認',
+    included: '予算内',
+    overBudget: '予算超過',
+    noRecommendations: '補充は不要です - 予測需要は現在の在庫でカバーされています',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      category: 'カテゴリ',
+      currentStock: '現在の在庫',
+      forecastedDemand: '予測需要',
+      shortfall: '不足数',
+      unitCost: '単価',
+      quantity: '注文数量',
+      lineCost: '行コスト',
+      leadTime: 'リードタイム',
+      status: 'ステータス'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,6 +241,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
@@ -360,6 +398,38 @@ export default {
     'USB-C PD 100W Power Supply': 'USB-C PD 100W電源',
     'Battery Backup Power Supply': 'バッテリバックアップ電源',
     'Adjustable Bench Power Supply': '可変ベンチ電源'
+  },
+
+  // Purchase Order Modal
+  purchaseOrder: {
+    createTitle: '発注書の作成',
+    viewTitle: '発注書の詳細',
+    orderId: '注文ID',
+    sku: 'SKU',
+    itemName: '品目名',
+    shortage: '不足数',
+    supplierName: 'サプライヤー名',
+    supplierNamePlaceholder: 'サプライヤー名を入力...',
+    quantity: '数量',
+    unitCost: '単価（USD）',
+    unitCostPlaceholder: '0.00',
+    expectedDelivery: '納品予定日',
+    notes: '備考',
+    notesPlaceholder: '任意の備考...',
+    submit: '発注書を作成',
+    submitting: '送信中...',
+    poNumber: '発注番号',
+    totalCost: '合計金額',
+    createdDate: '作成日',
+    notFound: '発注書が見つかりません。',
+    fetchError: '発注書の読み込みに失敗しました。',
+    submitError: '発注書の送信に失敗しました。',
+    alreadyExists: 'このバックログ品目にはすでに発注書が存在します。',
+    invalidData: '数量または単価が無効です。',
+    supplierRequired: 'サプライヤー名は必須です。',
+    quantityRequired: '数量は0より大きくなければなりません。',
+    unitCostRequired: '単価は0より大きくなければなりません。',
+    deliveryDateRequired: '納品予定日は必須です。'
   },
 
   // Customer Names

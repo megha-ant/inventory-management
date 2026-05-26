@@ -9,6 +9,7 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <div class="stats-grid">
+
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
           <div class="stat-value">{{ getOrdersByStatus('Delivered').length }}</div>
@@ -24,6 +25,57 @@
         <div class="stat-card danger">
           <div class="stat-label">{{ t('status.backordered') }}</div>
           <div class="stat-value">{{ getOrdersByStatus('Backordered').length }}</div>
+        </div>
+      </div>
+
+      <!-- Submitted Restock Orders — intentionally ignores the global FilterBar filters
+           and is NOT re-fetched on filter change; restock orders have no warehouse/month dimension. -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ restockOrders.length }})</h3>
+        </div>
+        <div v-if="restockOrders.length === 0" class="empty-restock">
+          {{ t('orders.noSubmittedOrders') }}
+        </div>
+        <div v-else class="table-container">
+          <table class="restock-orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="col-lead-time">{{ t('orders.table.leadTime') }}</th>
+                <th class="col-value">{{ t('orders.table.totalCost') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <span class="item-meta">{{ item.quantity }} &times; {{ currencySymbol }}{{ item.unit_cost }} &middot; {{ item.lead_time_days }} days</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span class="badge info">{{ t('status.submitted') }}</span>
+                </td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-lead-time">{{ getMaxLeadTime(order) }} days</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -95,6 +147,8 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    // Restock orders are loaded independently and are filter-agnostic
+    const restockOrders = ref([])
 
     // Use shared filters
     const {
@@ -138,9 +192,16 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted': 'info'
       }
       return statusMap[status] || 'info'
+    }
+
+    // Returns the longest lead time across all items in a restock order
+    const getMaxLeadTime = (order) => {
+      if (!order.items || order.items.length === 0) return 0
+      return Math.max(...order.items.map(i => i.lead_time_days))
     }
 
     const formatDate = (dateString) => {
@@ -153,15 +214,29 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const loadRestockOrders = async () => {
+      try {
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        console.error('Failed to load restock orders:', err)
+      }
+    }
+
+    onMounted(() => {
+      // Load both in parallel; restockOrders does not block the main loading state
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockOrders,
       getOrdersByStatus,
       getOrderStatusClass,
+      getMaxLeadTime,
       formatDate,
       currencySymbol,
       translateProductName,
@@ -275,5 +350,22 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Submitted restock orders table */
+.restock-orders-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.col-lead-time {
+  width: 110px;
+}
+
+.empty-restock {
+  padding: 1.5rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.938rem;
 }
 </style>
