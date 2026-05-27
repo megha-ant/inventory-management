@@ -35,5 +35,16 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Submitted restocking orders - starts empty and is appended to at runtime by
+# POST /api/restocking/orders. In-memory only by design (matches the rest of the
+# mock-data architecture), so submitted orders reset whenever the server restarts.
+restock_orders = []
+
+# User tasks - starts empty and is appended to at runtime by POST /api/tasks.
+# The frontend (App.vue) merges these API tasks with the per-user mock tasks defined
+# client-side in useAuth.js, so no seed data is needed here. In-memory only, resets
+# on server restart (same pattern as restock_orders).
+tasks = []
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data
